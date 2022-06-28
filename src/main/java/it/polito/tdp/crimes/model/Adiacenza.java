@@ -1,8 +1,8 @@
 package it.polito.tdp.crimes.model;
 
 public class Adiacenza {
-	String type1;
-	String type2;
+	public String type1;
+	public String type2;
 	double peso;
 	public Adiacenza(String type1, String type2, double peso) {
 		this.type1 = type1;

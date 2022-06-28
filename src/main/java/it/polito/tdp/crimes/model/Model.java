@@ -1,7 +1,10 @@
 package it.polito.tdp.crimes.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
@@ -13,7 +16,11 @@ import it.polito.tdp.crimes.db.EventsDao;
 public class Model {
 	
 	EventsDao dao;
-	Graph<String,DefaultWeightedEdge> grafo; 
+	Graph<String,DefaultWeightedEdge> grafo;
+	String partenza;
+	String arrivo;
+	List<String> best;
+	
 	
 	public Model() {
 		this.dao= new EventsDao();		
@@ -68,5 +75,50 @@ public class Model {
 		
 		return result;
 	}
+	
+	public Set<Adiacenza> allArch(){
+		Set<Adiacenza> result=new HashSet<>();
+		for(DefaultWeightedEdge e:this.grafo.edgeSet()) {
+			double p=this.grafo.getEdgeWeight(e);
+			String par=this.grafo.getEdgeSource(e);
+			String arr=this.grafo.getEdgeTarget(e);
+			result.add(new Adiacenza(par,arr,p));
+		}
+		
+		return result;
+	}
+	
+	public List<String> ricorsione(String partenza,String arrivo){
+		List<String> parziale=new ArrayList<>();
+		this.partenza=partenza;
+		this.best=new LinkedList<>(this.grafo.vertexSet());
+		parziale.add(partenza);
+		this.arrivo=arrivo;
+		cerca(parziale);
+		return best;		
+	}
+
+	private void cerca(List<String> parziale) {
+		if(parziale.size()==this.grafo.vertexSet().size() && parziale.get(parziale.size()-1).equals(this.arrivo)) {
+			if(parziale.size()<best.size()+1) {
+				best=new ArrayList<>(parziale);
+				return;
+			}
+		}
+		String corr=parziale.get(parziale.size()-1);
+		List<String> adiac=Graphs.neighborListOf(this.grafo, corr);
+		for(String a:adiac) {
+			if(!parziale.contains(a)) {
+				parziale.add(a);
+				cerca(parziale);
+				parziale.remove(parziale.size()-1);
+			}
+			
+			
+		}
+		
+		
+	}
+
 	
 }
